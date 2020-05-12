@@ -19,7 +19,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # Load data
-data = pd.read_csv("prostate_data", sep = "\t")
+data = pd.read_csv("prostate_data.txt", sep = "\t")
 print(data.head())
 
 # Train-test split
