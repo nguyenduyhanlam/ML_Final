@@ -15,6 +15,7 @@ from sklearn.cross_decomposition import PLSRegression
 from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_squared_error
 
 import warnings
 import seaborn as sn
@@ -51,14 +52,14 @@ print("#########################################################################
 print("Linear Regression")
 linreg_model = LinearRegression(normalize=True).fit(X_train, y_train)
 linreg_prediction = linreg_model.predict(X_test)
-linreg_mae = np.mean(np.abs(y_test - linreg_prediction))
+linreg_mae = mean_squared_error(y_test, linreg_prediction)
 linreg_coefs = dict(
     zip(['Intercept'] + data.columns.tolist()[:-1], 
         np.round(np.concatenate((linreg_model.intercept_, linreg_model.coef_), 
         axis=None), 3))
 )
 
-print('Linear Regression MAE: {}'.format(np.round(linreg_mae, 3)))
+print('Linear Regression MSE: {}'.format(np.round(linreg_mae, 3)))
 print('Linear Regression coefficients:', linreg_coefs)
 
 ##############################################################################
@@ -66,7 +67,7 @@ print('Linear Regression coefficients:', linreg_coefs)
 ##############################################################################
 print("##############################################################################")
 print("Best Subset Regression")
-results = pd.DataFrame(columns=['num_features', 'features', 'MAE'])
+results = pd.DataFrame(columns=['num_features', 'features', 'MSE'])
 
 # Loop over all possible numbers of features to be included
 for k in range(1, X_train.shape[1] + 1):
@@ -75,13 +76,13 @@ for k in range(1, X_train.shape[1] + 1):
         subset = list(subset)
         linreg_model = LinearRegression(normalize=True).fit(X_train[:, subset], y_train)
         linreg_prediction = linreg_model.predict(X_test[:, subset])
-        linreg_mae = np.mean(np.abs(y_test - linreg_prediction))
+        linreg_mae = mean_squared_error(y_test, linreg_prediction)
         results = results.append(pd.DataFrame([{'num_features': k,
                                                 'features': subset,
-                                                'MAE': linreg_mae}]))
+                                                'MSE': linreg_mae}]))
 
 # Inspect best combinations
-results = results.sort_values('MAE').reset_index()
+results = results.sort_values('MSE').reset_index()
 print(results.head())
 
 # Fit best model
@@ -91,7 +92,7 @@ best_subset_coefs = dict(
         np.round(np.concatenate((best_subset_model.intercept_, best_subset_model.coef_), axis=None), 3))
 )
 
-print('Best Subset Regression MAE: {}'.format(np.round(results['MAE'][0], 3)))
+print('Best Subset Regression MSE: {}'.format(np.round(results['MSE'][0], 3)))
 print('Best Subset Regression coefficients:', best_subset_coefs)
 
 ##############################################################################
@@ -102,14 +103,14 @@ print("Ridge Regression")
 ridge_cv = RidgeCV(normalize=True, alphas=np.logspace(-10, 1, 400))
 ridge_model = ridge_cv.fit(X_train, y_train)
 ridge_prediction = ridge_model.predict(X_test)
-ridge_mae = np.mean(np.abs(y_test - ridge_prediction))
+ridge_mae = mean_squared_error(y_test, ridge_prediction)
 ridge_coefs = dict(
     zip(['Intercept'] + data.columns.tolist()[:-1], 
         np.round(np.concatenate((ridge_model.intercept_, ridge_model.coef_), 
                                 axis=None), 3))
 )
 
-print('Ridge Regression MAE: {}'.format(np.round(ridge_mae, 3)))
+print('Ridge Regression MSE: {}'.format(np.round(ridge_mae, 3)))
 print('Ridge Regression coefficients:', ridge_coefs)
 
 ##############################################################################
@@ -120,13 +121,13 @@ print("LASSO")
 lasso_cv = LassoCV(normalize=True, alphas=np.logspace(-10, 1, 400))
 lasso_model = lasso_cv.fit(X_train, y_train)
 lasso_prediction = lasso_model.predict(X_test)
-lasso_mae = np.mean(np.abs(y_test - lasso_prediction))
+lasso_mae = mean_squared_error(y_test, lasso_prediction)
 lasso_coefs = dict(
     zip(['Intercept'] + data.columns.tolist()[:-1], 
         np.round(np.concatenate((lasso_model.intercept_, lasso_model.coef_), axis=None), 3))
 )
 
-print('LASSO MAE: {}'.format(np.round(lasso_mae, 3)))
+print('LASSO MSE: {}'.format(np.round(lasso_mae, 3)))
 print('LASSO coefficients:', lasso_coefs)
 
 ##############################################################################
@@ -138,14 +139,14 @@ elastic_net_cv = ElasticNetCV(normalize=True, alphas=np.logspace(-10, 1, 400),
                               l1_ratio=np.linspace(0, 1, 100))
 elastic_net_model = elastic_net_cv.fit(X_train, y_train)
 elastic_net_prediction = elastic_net_model.predict(X_test)
-elastic_net_mae = np.mean(np.abs(y_test - elastic_net_prediction))
+elastic_net_mae = mean_squared_error(y_test, elastic_net_prediction)
 elastic_net_coefs = dict(
     zip(['Intercept'] + data.columns.tolist()[:-1], 
         np.round(np.concatenate((elastic_net_model.intercept_, 
                                  elastic_net_model.coef_), axis=None), 3))
 )
 
-print('Elastic Net MAE: {}'.format(np.round(elastic_net_mae, 3)))
+print('Elastic Net MSE: {}'.format(np.round(elastic_net_mae, 3)))
 print('Elastic Net coefficients:', elastic_net_coefs)
 
 ##############################################################################
@@ -156,13 +157,13 @@ print("LEAST ANGLE REGRESSION")
 LAR_cv = LarsCV(normalize=True)
 LAR_model = LAR_cv.fit(X_train, y_train)
 LAR_prediction = LAR_model.predict(X_test)
-LAR_mae = np.mean(np.abs(y_test - LAR_prediction))
+LAR_mae = mean_squared_error(y_test, LAR_prediction)
 LAR_coefs = dict(
     zip(['Intercept'] + data.columns.tolist()[:-1], 
         np.round(np.concatenate((LAR_model.intercept_, LAR_model.coef_), axis=None), 3))
 )
 
-print('Least Angle Regression MAE: {}'.format(np.round(LAR_mae, 3)))
+print('Least Angle Regression MSE: {}'.format(np.round(LAR_mae, 3)))
 print('Least Angle Regression coefficients:', LAR_coefs)
 
 ##############################################################################
@@ -177,7 +178,7 @@ param_grid = {'pca__n_components': range(1, 9)}
 search = GridSearchCV(pipe, param_grid)
 pcareg_model = search.fit(X_train, y_train)
 pcareg_prediction = pcareg_model.predict(X_test)
-pcareg_mae = np.mean(np.abs(y_test - pcareg_prediction))
+pcareg_mae = mean_squared_error(y_test, pcareg_prediction)
 n_comp = list(pcareg_model.best_params_.values())[0]
 pcareg_coefs = dict(
    zip(['Intercept'] + ['PCA_comp_' + str(x) for x in range(1, n_comp + 1)], 
@@ -185,7 +186,7 @@ pcareg_coefs = dict(
                                 pcareg_model.best_estimator_.steps[1][1].coef_), axis=None), 3))
 )
 
-print('Principal Components Regression MAE: {}'.format(np.round(pcareg_mae, 3)))
+print('Principal Components Regression MSE: {}'.format(np.round(pcareg_mae, 3)))
 print('Principal Components Regression coefficients:', pcareg_coefs)
 
 ##############################################################################
@@ -198,11 +199,11 @@ param_grid = {'n_components': range(1, 9)}
 search = GridSearchCV(pls_model_setup, param_grid)
 pls_model = search.fit(X_train, y_train)
 pls_prediction = pls_model.predict(X_test)
-pls_mae = np.mean(np.abs(y_test - pls_prediction))
+pls_mae = mean_squared_error(y_test, pls_prediction)
 pls_coefs = dict(
   zip(data.columns.tolist()[:-1], 
       np.round(np.concatenate((pls_model.best_estimator_.coef_), axis=None), 3))
 )
 
-print('Partial Least Squares Regression MAE: {}'.format(np.round(pls_mae, 3)))
+print('Partial Least Squares Regression MSE: {}'.format(np.round(pls_mae, 3)))
 print('Partial Least Squares Regression coefficients:', pls_coefs)
