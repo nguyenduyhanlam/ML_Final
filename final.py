@@ -8,6 +8,7 @@ Created on Mon May 11 18:03:42 2020
 import pandas as pd
 import numpy as np
 import itertools
+from scipy import stats
 
 from sklearn.linear_model import LinearRegression, RidgeCV, LassoCV, ElasticNetCV, LarsCV
 from sklearn.cross_decomposition import PLSRegression
@@ -16,11 +17,26 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 
 import warnings
+import seaborn as sn
+import matplotlib.pyplot as plt
 warnings.filterwarnings("ignore")
 
 # Load data
 data = pd.read_csv("prostate_data.txt", sep = "\t")
+data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
+print("Some data samples:")
 print(data.head())
+
+dataStat = data.describe()
+print("Data statistical detail:")
+print(dataStat)
+
+correlationMatrix = data.corr()
+print("Correlation matrix:")
+print(correlationMatrix)
+
+sn.heatmap(correlationMatrix, annot=True)
+plt.show()
 
 # Train-test split
 y_train = np.array(data[data.train == "T"]['lpsa'])
