@@ -100,7 +100,7 @@ print('Best Subset Regression coefficients:', best_subset_coefs)
 ##############################################################################
 print("##############################################################################")
 print("Ridge Regression")
-ridge_cv = RidgeCV(normalize=True, alphas=np.logspace(-10, 1, 400))
+ridge_cv = RidgeCV(normalize=True, alphas=np.logspace(-10, 5, 1000), gcv_mode='svd')
 ridge_model = ridge_cv.fit(X_train, y_train)
 ridge_prediction = ridge_model.predict(X_test)
 ridge_mae = mean_squared_error(y_test, ridge_prediction)
@@ -118,7 +118,7 @@ print('Ridge Regression coefficients:', ridge_coefs)
 ##############################################################################
 print("##############################################################################")
 print("LASSO")
-lasso_cv = LassoCV(normalize=True, alphas=np.logspace(-10, 1, 400))
+lasso_cv = LassoCV(normalize=True, alphas=np.logspace(-10, 2, 1000))
 lasso_model = lasso_cv.fit(X_train, y_train)
 lasso_prediction = lasso_model.predict(X_test)
 lasso_mae = mean_squared_error(y_test, lasso_prediction)
@@ -135,7 +135,7 @@ print('LASSO coefficients:', lasso_coefs)
 ##############################################################################
 print("##############################################################################")
 print("ELASTIC NET")
-elastic_net_cv = ElasticNetCV(normalize=True, alphas=np.logspace(-10, 1, 400), 
+elastic_net_cv = ElasticNetCV(normalize=True, alphas=np.logspace(-10, 2, 1000), 
                               l1_ratio=np.linspace(0, 1, 100))
 elastic_net_model = elastic_net_cv.fit(X_train, y_train)
 elastic_net_prediction = elastic_net_model.predict(X_test)
